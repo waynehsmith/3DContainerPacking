@@ -78,21 +78,32 @@ var ViewModel = function () {
 	self.ItemsToPack = ko.observableArray([]);
 	self.Containers = ko.observableArray([]);
 
+	self.PointsIn = ko.observableArray([]);
+	self.PointsOut = ko.observableArray([]);
+
+
 	self.NewItemToPack = ko.mapping.fromJS(new ItemToPack());
 	self.NewContainer = ko.mapping.fromJS(new Container());
 
 	self.GenerateItemsToPack = function () {
 		self.ItemsToPack([]);
+		self.ItemsToPack.push(ko.mapping.fromJS({ ID: 1000, Name: 'M', Length: 1, Width: 2, Height: 5, Quantity: 2 }));
+		self.ItemsToPack.push(ko.mapping.fromJS({ ID: 1001, Name: 'X', Length: 2, Width: 1, Height: 5, Quantity: 1 }));
+/*
 		self.ItemsToPack.push(ko.mapping.fromJS({ ID: 1000, Name: 'Item1', Length: 5, Width: 4, Height: 2, Quantity: 1 }));
 		self.ItemsToPack.push(ko.mapping.fromJS({ ID: 1001, Name: 'Item2', Length: 2, Width: 1, Height: 1, Quantity: 3 }));
 		self.ItemsToPack.push(ko.mapping.fromJS({ ID: 1002, Name: 'Item3', Length: 9, Width: 7, Height: 3, Quantity: 4 }));
 		self.ItemsToPack.push(ko.mapping.fromJS({ ID: 1003, Name: 'Item4', Length: 13, Width: 6, Height: 3, Quantity: 8 }));
 		self.ItemsToPack.push(ko.mapping.fromJS({ ID: 1004, Name: 'Item5', Length: 17, Width: 8, Height: 6, Quantity: 1 }));
 		self.ItemsToPack.push(ko.mapping.fromJS({ ID: 1005, Name: 'Item6', Length: 3, Width: 3, Height: 2, Quantity: 2 }));
+*/
 	};
 	
 	self.GenerateContainers = function () {
 		self.Containers([]);
+		self.Containers.push(ko.mapping.fromJS({ ID: 1000, Name: 'BoxWide', Length: 2, Width: 4, Height: 5, AlgorithmPackingResults: [] }));
+		self.Containers.push(ko.mapping.fromJS({ ID: 1000, Name: 'BoxNarrow', Length: 4, Width: 2, Height: 5, AlgorithmPackingResults: [] }));
+	/*
 		self.Containers.push(ko.mapping.fromJS({ ID: 1000, Name: 'Box1', Length: 15, Width: 13, Height: 9, AlgorithmPackingResults: [] }));
 		self.Containers.push(ko.mapping.fromJS({ ID: 1001, Name: 'Box2', Length: 23, Width: 9, Height: 4, AlgorithmPackingResults: [] }));
 		self.Containers.push(ko.mapping.fromJS({ ID: 1002, Name: 'Box3', Length: 16, Width: 16, Height: 6, AlgorithmPackingResults: [] }));
@@ -106,6 +117,7 @@ var ViewModel = function () {
 		self.Containers.push(ko.mapping.fromJS({ ID: 1010, Name: 'Box11', Length: 17, Width: 16, Height: 15, AlgorithmPackingResults: [] }));
 		self.Containers.push(ko.mapping.fromJS({ ID: 1011, Name: 'Box12', Length: 32, Width: 10, Height: 9, AlgorithmPackingResults: [] }));
 		self.Containers.push(ko.mapping.fromJS({ ID: 1012, Name: 'Box13', Length: 60, Width: 60, Height: 60, AlgorithmPackingResults: [] }));
+		*/
 	};
 
 	self.AddAlgorithmToUse = function () {
@@ -189,8 +201,18 @@ var ViewModel = function () {
 		
 		PackContainers(JSON.stringify(request))
 			.then(response => {
+				$('#txaInput').val(response.Input);
+
+				self.PointsIn([]);
+				self.PointsIn.push(ko.mapping.fromJS({ Input: response.Input }));
+
+				self.PointsOut([]);
+				response.Output.forEach(value => {
+					self.PointsOut.push(ko.mapping.fromJS({ ContainerId: value.ContainerId.toString(), Packed: value.Packed, Unpacked: value.Unpacked }));
+				});
+
 				// Tie this response back to the correct containers.
-				response.forEach(containerPackingResult => {
+				response.Results.forEach(containerPackingResult => {
 					self.Containers().forEach(container => {
 						if (container.ID() == containerPackingResult.ContainerID) {
 							container.AlgorithmPackingResults(containerPackingResult.AlgorithmPackingResults);
@@ -285,6 +307,30 @@ var Container = function () {
 	this.Width = '';
 	this.Height = '';
 	this.AlgorithmPackingResults = [];
+	this.Output = '';
+}
+var ResultInput = function () {
+	this.Input = '';
+}
+var ResultOutput = function () {
+	this.ContainerId = '';
+	this.Packed = '';
+	this.Unpacked = '';
+}
+
+function GetDictionaryValue (array, key) {
+	///
+	/// Get the dictionary value from the array at the specified key
+	///
+	var keyValue = key;
+	var result;
+	jQuery.each(array, function () {
+		if (this.Key == keyValue) {
+			result = this.Value;
+			return false;
+		}
+	});
+	return result;
 }
 
 $(document).ready(() => {

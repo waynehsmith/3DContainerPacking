@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 
 namespace CromulentBisgetti.ContainerPacking.Entities
 {
 	[DataContract]
+	[DebuggerDisplay("CPE.AlgorithPackingResult {DisplaySummary(), nq}")]
 	public class AlgorithmPackingResult
 	{
 		#region Constructors
@@ -78,6 +80,67 @@ namespace CromulentBisgetti.ContainerPacking.Entities
 		[DataMember]
 		public List<Item> UnpackedItems { get; set; }
 
-		#endregion Public Properties
+        #endregion Public Properties
+
+        #region Public Methods
+		public string DisplaySummary()
+        {
+			var builder = new System.Text.StringBuilder();
+
+			builder.Append($"{AlgorithmName} ");
+
+			var pi = PackedItems.Count;
+			var up = UnpackedItems.Count;
+			builder.Append($"Packed: {pi}/{pi+up} ");
+
+			if (IsCompletePack)
+            {
+				builder.Append($"Used: {PercentContainerVolumePacked:0}% ");
+            }
+            else
+            {
+				builder.Append($"Items: {PercentItemVolumePacked}% ");
+			}
+			builder.Append($"Time: {PackTimeInMilliseconds}ms ");
+			return builder.ToString();
+        }
+
+        public override string ToString()
+        {
+            return DisplaySummary();
+        }
+        public override bool Equals(object obj)
+        {
+			if (!(obj is AlgorithmPackingResult))
+				return false;
+
+			AlgorithmPackingResult target = (AlgorithmPackingResult)obj;
+			return (
+				AlgorithmID == target.AlgorithmID
+				&& AlgorithmName == target.AlgorithmName
+				&& IsCompletePack == target.IsCompletePack
+				&& PackTimeInMilliseconds == target.PackTimeInMilliseconds
+				&& PercentContainerVolumePacked == target.PercentContainerVolumePacked
+				&& PercentItemVolumePacked == target.PercentItemVolumePacked
+				&& PackedItems.AreEquivalent(target.PackedItems)
+				&& UnpackedItems.AreEquivalent(target.UnpackedItems)
+				);
+		}
+		public override int GetHashCode()
+		{
+			var components = new int[]
+			{
+				AlgorithmID.GetHashCode()
+				,  AlgorithmName.GetHashCode()
+				,  IsCompletePack.GetHashCode()
+				,  PackTimeInMilliseconds.GetHashCode()
+				,  PercentContainerVolumePacked.GetHashCode()
+				,  PercentItemVolumePacked.GetHashCode()
+				,  PackedItems.GetEnumerableHashCode()
+				,  UnpackedItems.GetEnumerableHashCode()
+			};
+			return PackingUtilities.CreateHashCode(components);		
+		}
+		#endregion
 	}
 }

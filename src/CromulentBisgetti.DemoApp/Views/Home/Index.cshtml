@@ -242,6 +242,48 @@
                 </div>
             </div>
         </div>
+        <div class="row">
+<table class="tg" width="100%">
+<thead>
+  <tr>
+    <th class="tg-0lax">Result Points</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td class="tg-0lax"><textarea id="txaInput" name="txaInput" rows="4" cols="50"></textarea> </td>
+  </tr>
+  <tr>
+    <td class="tg-0lax">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Outputs</h3>
+            </div>
+            <div class="panel-body">
+                <table class="table table-condensed" style="font-size: 14px;">
+                    <thead>
+                      <tr>
+                        <th class="tg-0lax" width=100>ContainerId</th>
+                        <th class="tg-0lax">Packed</th>
+                        <th class="tg-0lax">Unpacked</th>
+                      </tr>
+                    </thead>
+                    <tbody data-bind="foreach: PointsOut">
+                        <tr>
+                            <td><!--ko text: ContainerId--><!--/ko--> </td>
+                            <td><textarea rows="4" cols="50" type="text" data-bind="value: Packed"></textarea></td>
+                            <td><textarea rows="4" cols="50" type="text" data-bind="value: Unpacked"></textarea></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>                    
+        </div>
+    </td>
+  </tr>
+</tbody>
+</table>
+        </div>
+
     </div>
 
     <div class="modal fade render-modal" tabindex="-1" role="dialog">
